@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Учусь.РФ - Записи на онлайн курсы{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1>Образовательный портал «Учусь.РФ»</h1>
+        <p class="hero-subtitle">Записи на онлайн курсы дистанционного обучения: повышения квалификации, курс переподготовки, курс по охране труда</p>
+        <div class="hero-actions">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('new_application') }}" class="btn btn-primary btn-lg">Подать заявку</a>
+                <a href="{{ url_for('profile') }}" class="btn btn-outline btn-lg">Личный кабинет</a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Зарегистрироваться</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline btn-lg">Войти</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="section-title">
+        <h2>Наши курсы</h2>
+        <p>Выберите подходящий курс для профессионального развития</p>
+    </div>
+    <div class="features-grid">
+        <div class="feature-card fade-in">
+            <div class="feature-icon">
+                <img src="{{ url_for('static', filename='images/course_1.jpg') }}" alt="Повышение квалификации">
+            </div>
+            <h3>Повышение квалификации</h3>
+            <p>Актуализируйте свои знания и навыки в соответствии с современными требованиями</p>
+        </div>
+        <div class="feature-card fade-in">
+            <div class="feature-icon">
+                <img src="{{ url_for('static', filename='images/diploma.webp') }}" alt="Переподготовка">
+            </div>
+            <h3>Курсы переподготовки</h3>
+            <p>Получите новую профессию и расширьте свои карьерные возможности</p>
+        </div>
+        <div class="feature-card fade-in">
+            <div class="feature-icon">
+                <img src="{{ url_for('static', filename='images/students_corner.png') }}" alt="Охрана труда">
+            </div>
+            <h3>Курсы по охране труда</h3>
+            <p>Обеспечьте безопасность на рабочем месте с нашими программами обучения</p>
+        </div>
+    </div>
+</section>
+
+<section class="info-section">
+    <div class="section-title">
+        <h2>Почему выбирают нас</h2>
+    </div>
+    <div class="info-grid">
+        <div class="info-card">
+            <h3>Удобный формат</h3>
+            <p>Дистанционное обучение из любой точки мира</p>
+        </div>
+        <div class="info-card">
+            <h3>Гибкий график</h3>
+            <p>Выбирайте удобное время старта занятий</p>
+        </div>
+        <div class="info-card">
+            <h3>Документы</h3>
+            <p>По окончании выдаются документы установленного образца</p>
+        </div>
+        <div class="info-card">
+            <h3>Разные способы оплаты</h3>
+            <p>Оплата по QR-коду, картой МИР или постоплата в офисе</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
