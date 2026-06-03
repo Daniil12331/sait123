@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет - Учусь.РФ{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-header">
+        <div class="profile-info">
+            <h1>Личный кабинет</h1>
+            <p class="welcome-text">Добро пожаловать, <strong>{{ current_user.full_name }}</strong>!</p>
+            <div class="user-details">
+                <span><strong>Логин:</strong> {{ current_user.login }}</span>
+                <span><strong>Email:</strong> {{ current_user.email }}</span>
+                <span><strong>Телефон:</strong> {{ current_user.phone }}</span>
+            </div>
+        </div>
+        <a href="{{ url_for('new_application') }}" class="btn btn-primary">+ Новая заявка</a>
+    </div>
+
+    <section class="slider-section">
+        <h2>Наши курсы</h2>
+        <div class="slider" id="courseSlider">
+            <div class="slide">
+                <img src="{{ url_for('static', filename='images/image.jpeg') }}" alt="Курс 1">
+            </div>
+            <div class="slide">
+                <img src="{{ url_for('static', filename='images/image%20(1).jpeg') }}" alt="Курс 2">
+            </div>
+            <div class="slide">
+                <img src="{{ url_for('static', filename='images/image%20(2).jpeg') }}" alt="Курс 3">
+            </div>
+            <div class="slide">
+                <img src="{{ url_for('static', filename='images/image%20(3).jpeg') }}" alt="Курс 4">
+            </div>
+            <div class="slide">
+                <img src="{{ url_for('static', filename='images/image%20(4).jpeg') }}" alt="Курс 5">
+            </div>
+        </div>
+    </section>
+
+    <section class="applications-section">
+        <h2>История заявок</h2>
+        {% if applications %}
+            <div class="applications-table-wrapper">
+                <table class="applications-table">
+                    <thead>
+                        <tr>
+                            <th>№</th>
+                            <th>Тип курса</th>
+                            <th>Дата старта</th>
+                            <th>Способ оплаты</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td>{{ app.id }}</td>
+                            <td>{{ app.course_type }}</td>
+                            <td>{{ app.start_date }}</td>
+                            <td>{{ app.payment_method }}</td>
+                            <td>
+                                <span class="status status-{{ app.status|lower|replace(' ', '') }}">
+                                    {{ app.status }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if app.status != 'Новая' %}
+                                    {% if reviews.get(app.id) %}
+                                        <div class="review-text">
+                                            <small><em>Ваш отзыв: {{ reviews[app.id].text[:50] }}{% if reviews[app.id].text|length > 50 %}...{% endif %}</em></small>
+                                        </div>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-outline" onclick="showReviewForm({{ app.id }})">Оставить отзыв</button>
+                                        <form id="reviewForm{{ app.id }}" method="POST" action="{{ url_for('add_review', app_id=app.id) }}" class="review-form hidden">
+                                            <textarea name="review_text" rows="2" placeholder="Ваш отзыв..." required></textarea>
+                                            <button type="submit" class="btn btn-sm btn-primary">Отправить</button>
+                                        </form>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Ожидает обработки</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>У вас пока нет заявок.</p>
+                <a href="{{ url_for('new_application') }}" class="btn btn-primary">Создать первую заявку</a>
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('#courseSlider').slick({
+            dots: true,
+            infinite: true,
+            speed: 500,
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            autoplay: true,
+            autoplaySpeed: 3000,
+            arrows: true,
+            adaptiveHeight: true
+        });
+    });
+
+    function showReviewForm(appId) {
+        document.getElementById('reviewForm' + appId).classList.toggle('hidden');
+    }
+</script>
+{% endblock %}

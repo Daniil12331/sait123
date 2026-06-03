@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Панель администратора - Учусь.РФ{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="admin-header">
+        <h1>Панель администратора</h1>
+        <p>Управление заявками пользователей</p>
+    </div>
+
+    <div class="admin-tools">
+        <form method="GET" action="{{ url_for('admin_panel') }}" class="filter-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="status">Фильтр по статусу:</label>
+                    <select name="status" id="status" class="form-control" onchange="this.form.submit()">
+                        <option value="">Все статусы</option>
+                        <option value="Новая" {% if status_filter == 'Новая' %}selected{% endif %}>Новая</option>
+                        <option value="Идет обучение" {% if status_filter == 'Идет обучение' %}selected{% endif %}>Идет обучение</option>
+                        <option value="Обучение завершено" {% if status_filter == 'Обучение завершено' %}selected{% endif %}>Обучение завершено</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Сортировка:</label>
+                    <div class="sort-buttons">
+                        <a href="{{ url_for('admin_panel', status=status_filter, sort='created_at', dir='desc' if sort_dir != 'desc' else 'asc') }}" class="btn btn-sm {% if sort_by == 'created_at' %}btn-primary{% else %}btn-outline{% endif %}">
+                            По дате {% if sort_by == 'created_at' %}{{ '↓' if sort_dir == 'desc' else '↑' }}{% endif %}
+                        </a>
+                        <a href="{{ url_for('admin_panel', status=status_filter, sort='user_name', dir='asc' if sort_dir != 'asc' else 'desc') }}" class="btn btn-sm {% if sort_by == 'user_name' %}btn-primary{% else %}btn-outline{% endif %}">
+                            По имени {% if sort_by == 'user_name' %}{{ '↑' if sort_dir == 'asc' else '↓' }}{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="admin-stats">
+        <div class="stat-card">
+            <span class="stat-number">{{ pagination.total }}</span>
+            <span class="stat-label">Всего заявок</span>
+        </div>
+        <div class="stat-card stat-new">
+            <span class="stat-number">{{ applications|selectattr('status', 'equalto', 'Новая')|list|length }}</span>
+            <span class="stat-label">Новые</span>
+        </div>
+        <div class="stat-card stat-inprogress">
+            <span class="stat-number">{{ applications|selectattr('status', 'equalto', 'Идет обучение')|list|length }}</span>
+            <span class="stat-label">В обучении</span>
+        </div>
+        <div class="stat-card stat-completed">
+            <span class="stat-number">{{ applications|selectattr('status', 'equalto', 'Обучение завершено')|list|length }}</span>
+            <span class="stat-label">Завершено</span>
+        </div>
+    </div>
+
+    <div class="admin-table-wrapper">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Пользователь</th>
+                    <th>Тип курса</th>
+                    <th>Дата старта</th>
+                    <th>Способ оплаты</th>
+                    <th>Статус</th>
+                    <th>Дата создания</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr class="fade-in">
+                    <td>#{{ app.id }}</td>
+                    <td>{{ app.user.full_name }}</td>
+                    <td>{{ app.course_type }}</td>
+                    <td>{{ app.start_date }}</td>
+                    <td>{{ app.payment_method }}</td>
+                    <td>
+                        <span class="status status-{{ app.status|lower|replace(' ', '') }}">
+                            {{ app.status }}
+                        </span>
+                    </td>
+                    <td>{{ app.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('update_status', app_id=app.id) }}" class="status-form">
+                            <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
+                                <option value="Новая" {% if app.status == 'Новая' %}selected{% endif %}>Новая</option>
+                                <option value="Идет обучение" {% if app.status == 'Идет обучение' %}selected{% endif %}>Идет обучение</option>
+                                <option value="Обучение завершено" {% if app.status == 'Обучение завершено' %}selected{% endif %}>Обучение завершено</option>
+                            </select>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="empty-state">Нет заявок для отображения</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Пагинация -->
+    {% if pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+            <a href="{{ url_for('admin_panel', page=pagination.prev_num, status=status_filter, sort=sort_by, dir=sort_dir) }}" class="btn btn-outline btn-sm">&laquo; Назад</a>
+        {% endif %}
+
+        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if page_num %}
+                <a href="{{ url_for('admin_panel', page=page_num, status=status_filter, sort=sort_by, dir=sort_dir) }}"
+                   class="btn btn-sm {% if page_num == pagination.page %}btn-primary{% else %}btn-outline{% endif %}">
+                    {{ page_num }}
+                </a>
+            {% else %}
+                <span class="pagination-ellipsis">...</span>
+            {% endif %}
+        {% endfor %}
+
+        {% if pagination.has_next %}
+            <a href="{{ url_for('admin_panel', page=pagination.next_num, status=status_filter, sort=sort_by, dir=sort_dir) }}" class="btn btn-outline btn-sm">Вперед &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Новая заявка - Учусь.РФ{% endblock %}
+
+{% block content %}
+<div class="application-form-page">
+    <div class="form-card">
+        <h1>Оформление заявки на курс</h1>
+        <p class="form-subtitle">Заполните форму для записи на обучение</p>
+
+        <form method="POST" action="{{ url_for('new_application') }}">
+            <div class="form-group">
+                <label for="course_type">Тип курса</label>
+                <select id="course_type" name="course_type" class="form-control" required>
+                    <option value="">Выберите тип курса</option>
+                    <option value="Повышение квалификации" {% if form_data.get('course_type') == 'Повышение квалификации' %}selected{% endif %}>Повышение квалификации</option>
+                    <option value="Курс переподготовки" {% if form_data.get('course_type') == 'Курс переподготовки' %}selected{% endif %}>Курс переподготовки</option>
+                    <option value="Курс по охране труда" {% if form_data.get('course_type') == 'Курс по охране труда' %}selected{% endif %}>Курс по охране труда</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="start_date">Предпочтительная дата старта занятий</label>
+                <input type="date" id="start_date" name="start_date" class="form-control"
+                       value="{{ form_data.get('start_date', '') }}" required>
+                <small class="form-text">Формат: ДД.ММ.ГГГГ</small>
+            </div>
+
+            <div class="form-group">
+                <label for="payment_method">Способ оплаты</label>
+                <select id="payment_method" name="payment_method" class="form-control" required>
+                    <option value="">Выберите способ оплаты</option>
+                    <option value="Предоплата по QR-коду" {% if form_data.get('payment_method') == 'Предоплата по QR-коду' %}selected{% endif %}>Предоплата по QR-коду</option>
+                    <option value="Оплата картой МИР" {% if form_data.get('payment_method') == 'Оплата картой МИР' %}selected{% endif %}>Оплата картой МИР</option>
+                    <option value="Постоплата в офисе организации" {% if form_data.get('payment_method') == 'Постоплата в офисе организации' %}selected{% endif %}>Постоплата в офисе организации</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">Отправить заявку</button>
+                <a href="{{ url_for('profile') }}" class="btn btn-outline">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
