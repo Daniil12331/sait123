@@ -1,74 +1,1516 @@
-{% extends "base.html" %}
-{% block title %}Учусь.РФ - Записи на онлайн курсы{% endblock %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Учусь.РФ - Образовательный портал</title>
+<style>
+/* ========== ОСНОВНЫЕ СТИЛИ ========== */
+:root {
+    --primary: #007bff;
+    --dark-blue: #0d47a1;
+    --gray-bg: #ced4da;
+    --light-gray: #dee2e6;
+    --white: #ffffff;
+    --success: #28a745;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --info: #17a2b8;
+    --text-dark: #212529;
+    --text-muted: #6c757d;
+    --shadow: 0 2px 10px rgba(0,0,0,0.1);
+    --radius: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-dark);
+    background: var(--light-gray);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+h1 { font-size: 36px; font-weight: 700; }
+h2 { font-size: 24px; font-weight: 500; }
+h3 { font-size: 18px; font-weight: 500; }
+small, .text-muted { font-size: 12px; font-weight: 300; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-{% block content %}
-<section class="hero">
-    <div class="hero-content">
-        <h1>Образовательный портал «Учусь.РФ»</h1>
-        <p class="hero-subtitle">Записи на онлайн курсы дистанционного обучения: повышения квалификации, курс переподготовки, курс по охране труда</p>
-        <div class="hero-actions">
-            {% if current_user.is_authenticated %}
-                <a href="{{ url_for('new_application') }}" class="btn btn-primary btn-lg">Подать заявку</a>
-                <a href="{{ url_for('profile') }}" class="btn btn-outline btn-lg">Личный кабинет</a>
-            {% else %}
-                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Зарегистрироваться</a>
-                <a href="{{ url_for('login') }}" class="btn btn-outline btn-lg">Войти</a>
-            {% endif %}
-        </div>
-    </div>
-</section>
+/* ========== НАВИГАЦИЯ ========== */
+.navbar {
+    background: var(--white);
+    box-shadow: var(--shadow);
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-dark);
+    cursor: pointer;
+}
+.logo-text { font-size: 24px; font-weight: 700; color: var(--primary); }
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+    align-items: center;
+}
+.nav-menu li { cursor: pointer; }
+.nav-menu a, .nav-menu li {
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 500;
+    transition: color 0.3s;
+}
+.nav-menu a:hover, .nav-menu li:hover { color: var(--primary); }
 
-<section class="features">
-    <div class="section-title">
-        <h2>Наши курсы</h2>
-        <p>Выберите подходящий курс для профессионального развития</p>
-    </div>
-    <div class="features-grid">
-        <div class="feature-card fade-in">
-            <div class="feature-icon">
-                <img src="{{ url_for('static', filename='images/course_1.jpg') }}" alt="Повышение квалификации">
-            </div>
-            <h3>Повышение квалификации</h3>
-            <p>Актуализируйте свои знания и навыки в соответствии с современными требованиями</p>
-        </div>
-        <div class="feature-card fade-in">
-            <div class="feature-icon">
-                <img src="{{ url_for('static', filename='images/diploma.webp') }}" alt="Переподготовка">
-            </div>
-            <h3>Курсы переподготовки</h3>
-            <p>Получите новую профессию и расширьте свои карьерные возможности</p>
-        </div>
-        <div class="feature-card fade-in">
-            <div class="feature-icon">
-                <img src="{{ url_for('static', filename='images/students_corner.png') }}" alt="Охрана труда">
-            </div>
-            <h3>Курсы по охране труда</h3>
-            <p>Обеспечьте безопасность на рабочем месте с нашими программами обучения</p>
-        </div>
-    </div>
-</section>
+/* ========== КНОПКИ ========== */
+.btn {
+    display: inline-block;
+    padding: 10px 24px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 500;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-family: inherit;
+}
+.btn-primary {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
+}
+.btn-primary:hover {
+    background: var(--dark-blue);
+    border-color: var(--dark-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+}
+.btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border-color: var(--primary);
+}
+.btn-outline:hover {
+    background: var(--primary);
+    color: var(--white);
+}
+.btn-lg { padding: 14px 32px; font-size: 18px; }
+.btn-sm { padding: 6px 14px; font-size: 14px; }
+.btn-block { width: 100%; }
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0 8px;
+    color: var(--text-muted);
+}
 
-<section class="info-section">
-    <div class="section-title">
-        <h2>Почему выбирают нас</h2>
+/* ========== АЛЕРТЫ ========== */
+.alert {
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+.alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+.alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
+/* ========== ФОРМЫ ========== */
+.form-group { margin-bottom: 20px; }
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--light-gray);
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-family: inherit;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background: var(--white);
+}
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.15);
+}
+.form-control.is-invalid { border-color: var(--danger); }
+.form-control-sm { padding: 8px 12px; font-size: 14px; }
+.form-text { display: block; margin-top: 4px; color: var(--text-muted); }
+.invalid-feedback { color: var(--danger); margin-top: 4px; font-size: 14px; }
+.form-row { display: flex; gap: 20px; flex-wrap: wrap; }
+.form-row .form-group { flex: 1; min-width: 200px; }
+.form-actions { display: flex; gap: 15px; margin-top: 30px; }
+.hidden { display: none !important; }
+
+/* ========== КАРТОЧКИ АВТОРИЗАЦИИ ========== */
+.auth-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 200px);
+    padding: 40px 0;
+}
+.auth-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 40px;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.4s ease;
+}
+.auth-card h1 { margin-bottom: 8px; }
+.auth-subtitle { color: var(--text-muted); margin-bottom: 30px; }
+.auth-footer { margin-top: 24px; text-align: center; }
+.auth-footer span { color: var(--primary); text-decoration: none; font-weight: 500; cursor: pointer; }
+.auth-footer span:hover { text-decoration: underline; }
+
+/* ========== HERO ========== */
+.hero {
+    background: linear-gradient(135deg, var(--primary), var(--dark-blue));
+    color: var(--white);
+    padding: 80px 0;
+    margin-bottom: 0;
+    border-radius: 0 0 20px 20px;
+}
+.hero-content { max-width: 700px; }
+.hero h1 { font-size: 42px; margin-bottom: 20px; line-height: 1.2; }
+.hero-subtitle { font-size: 18px; opacity: 0.9; margin-bottom: 30px; line-height: 1.6; }
+.hero-actions { display: flex; gap: 15px; flex-wrap: wrap; }
+.hero-actions .btn-outline {
+    color: var(--white);
+    border-color: var(--white);
+}
+.hero-actions .btn-outline:hover {
+    background: var(--white);
+    color: var(--primary);
+}
+
+/* ========== СЕКЦИИ ========== */
+.section-title {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-top: 60px;
+}
+.section-title h2 { color: var(--text-dark); margin-bottom: 10px; }
+.section-title p { color: var(--text-muted); }
+.features { padding-bottom: 60px; }
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+.feature-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    transition: transform 0.3s;
+}
+.feature-card:hover { transform: translateY(-5px); }
+.feature-icon {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+}
+.feature-icon img { width: 100%; height: 100%; object-fit: cover; }
+.feature-card h3 { margin-bottom: 10px; color: var(--dark-blue); }
+.info-section { padding-bottom: 60px; }
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+.info-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+.info-card h3 { color: var(--primary); margin-bottom: 8px; }
+
+/* ========== ПРОФИЛЬ ========== */
+.profile-page { padding: 40px 0; }
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.welcome-text { font-size: 18px; margin-bottom: 15px; }
+.user-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    color: var(--text-muted);
+}
+.slider-section { margin-bottom: 40px; }
+.slider-section h2 { margin-bottom: 20px; }
+
+/* Слайдер */
+.slider {
+    position: relative;
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+.slides-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+}
+.slide-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+.slide-img.active {
+    opacity: 1;
+}
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.4);
+    color: white;
+    border: none;
+    font-size: 28px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 10;
+    transition: background 0.3s;
+    line-height: 1;
+}
+.slider-btn:hover { background: rgba(0,0,0,0.7); }
+.slider-prev { left: 30px; }
+.slider-next { right: 30px; }
+.slider-dots {
+    text-align: center;
+    padding: 15px 0 5px;
+}
+.slider-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--light-gray);
+    margin: 0 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.slider-dot.active { background: var(--primary); }
+
+/* ========== ТАБЛИЦЫ ========== */
+.applications-section h2 { margin-bottom: 20px; }
+.applications-table-wrapper,
+.admin-table-wrapper {
+    overflow-x: auto;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+.applications-table,
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.applications-table th,
+.applications-table td,
+.admin-table th,
+.admin-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--light-gray);
+}
+.applications-table th,
+.admin-table th {
+    background: var(--light-gray);
+    font-weight: 600;
+    color: var(--text-dark);
+}
+.applications-table tr:hover,
+.admin-table tr:hover {
+    background: rgba(0,123,255,0.03);
+}
+
+/* ========== СТАТУСЫ ========== */
+.status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+}
+.status-Новая { background: #fff3cd; color: #856404; }
+.status-Идетобучение { background: #d4edda; color: #155724; }
+.status-Обучениезавершено { background: #cce5ff; color: #004085; }
+
+/* ========== АДМИН-ПАНЕЛЬ ========== */
+.admin-page { padding: 40px 0; }
+.admin-header { margin-bottom: 30px; }
+.admin-header h1 { margin-bottom: 8px; }
+.admin-header p { color: var(--text-muted); }
+.admin-tools {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+.sort-buttons { display: flex; gap: 8px; margin-top: 6px; }
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.stat-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+.stat-number { display: block; font-size: 32px; font-weight: 700; color: var(--primary); }
+.stat-label { color: var(--text-muted); font-size: 14px; }
+.stat-new .stat-number { color: var(--warning); }
+.stat-inprogress .stat-number { color: var(--success); }
+.stat-completed .stat-number { color: var(--info); }
+
+/* ========== ПАГИНАЦИЯ ========== */
+.pagination {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+.pagination-ellipsis { padding: 8px; }
+
+/* ========== ФУТЕР ========== */
+.footer {
+    background: var(--dark-blue);
+    color: var(--white);
+    padding: 40px 0 0;
+    margin-top: auto;
+}
+.footer-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 30px;
+}
+.footer h3, .footer h4 { margin-bottom: 15px; }
+.footer-info p { margin-bottom: 8px; opacity: 0.8; font-size: 14px; }
+.footer-links ul { list-style: none; }
+.footer-links li { margin-bottom: 8px; opacity: 0.8; font-size: 14px; }
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 20px 0;
+    text-align: center;
+    opacity: 0.6;
+    font-size: 14px;
+}
+
+/* ========== ФОРМА ЗАЯВКИ ========== */
+.application-form-page {
+    display: flex;
+    justify-content: center;
+    padding: 40px 0;
+    min-height: calc(100vh - 200px);
+}
+.form-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 40px;
+    width: 100%;
+    max-width: 600px;
+}
+.form-card h1 { margin-bottom: 8px; }
+.form-subtitle { color: var(--text-muted); margin-bottom: 30px; }
+
+/* ========== ПУСТОЕ СОСТОЯНИЕ ========== */
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+}
+.empty-state p { margin-bottom: 20px; }
+
+/* ========== БУРГЕР-МЕНЮ ========== */
+.burger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+}
+.burger span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background: var(--text-dark);
+    border-radius: 3px;
+    transition: 0.3s;
+}
+
+/* ========== АНИМАЦИИ ========== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeIn 0.3s ease; }
+.fade-in-up { animation: slideUp 0.4s ease; }
+
+/* ========== РЕВЬЮ ========== */
+.review-text { font-size: 13px; color: var(--text-muted); }
+.review-form { margin-top: 8px; }
+.review-form textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--light-gray);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-family: inherit;
+}
+.status-form { display: inline-block; }
+
+/* ========== АДАПТАЦИЯ ========== */
+@media (max-width: 768px) {
+    h1 { font-size: 28px; }
+    h2 { font-size: 20px; }
+    .nav-menu {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: var(--white);
+        flex-direction: column;
+        padding: 20px;
+        box-shadow: var(--shadow);
+    }
+    .nav-menu.active { display: flex; }
+    .burger { display: flex; }
+    .hero { padding: 60px 20px; }
+    .hero h1 { font-size: 32px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .info-grid { grid-template-columns: 1fr; }
+    .footer-content { grid-template-columns: 1fr; }
+    .profile-header { flex-direction: column; }
+    .form-row { flex-direction: column; }
+    .admin-stats { grid-template-columns: repeat(2, 1fr); }
+    .slides-container { height: 250px; }
+    .hero-actions { flex-direction: column; }
+    .hero-actions .btn { text-align: center; }
+}
+@media (max-width: 390px) {
+    .container { padding: 0 12px; }
+    .auth-card, .form-card { padding: 24px; }
+    .stat-number { font-size: 24px; }
+}
+
+/* Модальное окно для отзыва */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+    background: white;
+    padding: 30px;
+    border-radius: var(--radius);
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    animation: slideUp 0.3s ease;
+}
+.modal-box h3 { margin-bottom: 15px; }
+.modal-box .btn { margin-top: 10px; margin-right: 10px; }
+</style>
+</head>
+<body>
+
+<!-- ========== НАВИГАЦИЯ ========== -->
+<nav class="navbar">
+    <div class="container">
+        <div class="logo" onclick="showPage('index')">
+            <span class="logo-text">Учусь.РФ</span>
+        </div>
+        <button class="burger" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+            <li onclick="showPage('index')">Главная</li>
+            <li id="navLogin" onclick="showPage('login')">Вход</li>
+            <li id="navRegister" onclick="showPage('register')">Регистрация</li>
+            <li id="navCabinet" class="hidden" onclick="showPage('cabinet')">Кабинет</li>
+            <li id="navAdmin" class="hidden" onclick="showPage('admin')">Админ</li>
+            <li id="navLogout" class="hidden" onclick="logout()">Выход</li>
+        </ul>
     </div>
-    <div class="info-grid">
-        <div class="info-card">
-            <h3>Удобный формат</h3>
-            <p>Дистанционное обучение из любой точки мира</p>
+</nav>
+
+<!-- ========== СТРАНИЦЫ ========== -->
+
+<!-- ГЛАВНАЯ -->
+<div id="pageIndex" class="page">
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Образовательный портал «Учусь.РФ»</h1>
+                <p class="hero-subtitle">Запись на онлайн курсы дистанционного обучения: повышения квалификации, курс переподготовки, курс по охране труда</p>
+                <div class="hero-actions" id="heroActions">
+                    <button class="btn btn-primary btn-lg" onclick="showPage('register')">Зарегистрироваться</button>
+                    <button class="btn btn-outline btn-lg" onclick="showPage('login')">Войти</button>
+                </div>
+            </div>
         </div>
-        <div class="info-card">
-            <h3>Гибкий график</h3>
-            <p>Выбирайте удобное время старта занятий</p>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>Наши курсы</h2>
+                <p>Выберите подходящий курс для профессионального развития</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <img src="static/images/course_1.jpg" alt="Повышение квалификации" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22200%22%3E%3Crect width=%22300%22 height=%22200%22 fill=%22%23e9ecef%22/%3E%3Ctext x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23666%22 font-size=%2220%22%3EКурс 1%3C/text%3E%3C/svg%3E'">
+                    </div>
+                    <h3>Повышение квалификации</h3>
+                    <p>Актуализируйте свои знания и навыки в соответствии с современными требованиями</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <img src="static/images/diploma.webp" alt="Переподготовка" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22200%22%3E%3Crect width=%22300%22 height=%22200%22 fill=%22%23e9ecef%22/%3E%3Ctext x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23666%22 font-size=%2220%22%3EКурс 2%3C/text%3E%3C/svg%3E'">
+                    </div>
+                    <h3>Курсы переподготовки</h3>
+                    <p>Получите новую профессию и расширьте свои карьерные возможности</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <img src="static/images/students_corner.png" alt="Охрана труда" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22200%22%3E%3Crect width=%22300%22 height=%22200%22 fill=%22%23e9ecef%22/%3E%3Ctext x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23666%22 font-size=%2220%22%3EКурс 3%3C/text%3E%3C/svg%3E'">
+                    </div>
+                    <h3>Курсы по охране труда</h3>
+                    <p>Обеспечьте безопасность на рабочем месте с нашими программами обучения</p>
+                </div>
+            </div>
         </div>
-        <div class="info-card">
-            <h3>Документы</h3>
-            <p>По окончании выдаются документы установленного образца</p>
+    </section>
+
+    <section class="info-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Почему выбирают нас</h2>
+            </div>
+            <div class="info-grid">
+                <div class="info-card"><h3>Удобный формат</h3><p>Дистанционное обучение из любой точки мира</p></div>
+                <div class="info-card"><h3>Гибкий график</h3><p>Выбирайте удобное время старта занятий</p></div>
+                <div class="info-card"><h3>Документы</h3><p>По окончании выдаются документы установленного образца</p></div>
+                <div class="info-card"><h3>Разные способы оплаты</h3><p>Оплата по QR-коду, картой МИР или постоплата в офисе</p></div>
+            </div>
         </div>
-        <div class="info-card">
-            <h3>Разные способы оплаты</h3>
-            <p>Оплата по QR-коду, картой МИР или постоплата в офисе</p>
+    </section>
+</div>
+
+<!-- РЕГИСТРАЦИЯ -->
+<div id="pageRegister" class="page hidden">
+    <div class="auth-form">
+        <div class="auth-card">
+            <h1>Регистрация</h1>
+            <p class="auth-subtitle">Создайте аккаунт для записи на курсы</p>
+            <div id="registerAlert"></div>
+            <div class="form-group">
+                <label for="regLogin">Логин</label>
+                <input id="regLogin" class="form-control" placeholder="Логин (лат. буквы + цифры, от 6)">
+                <div class="invalid-feedback" id="regLoginErr"></div>
+            </div>
+            <div class="form-group">
+                <label for="regPassword">Пароль</label>
+                <input id="regPassword" type="password" class="form-control" placeholder="Пароль (от 8 символов)">
+                <div class="invalid-feedback" id="regPasswordErr"></div>
+            </div>
+            <div class="form-group">
+                <label for="regFio">ФИО</label>
+                <input id="regFio" class="form-control" placeholder="Фамилия Имя Отчество">
+                <div class="invalid-feedback" id="regFioErr"></div>
+            </div>
+            <div class="form-group">
+                <label for="regPhone">Телефон</label>
+                <input id="regPhone" class="form-control" placeholder="+7 (999) 123-45-67">
+                <div class="invalid-feedback" id="regPhoneErr"></div>
+            </div>
+            <div class="form-group">
+                <label for="regEmail">E-mail</label>
+                <input id="regEmail" class="form-control" placeholder="email@example.com">
+                <div class="invalid-feedback" id="regEmailErr"></div>
+            </div>
+            <button class="btn btn-primary btn-block" onclick="register()">Зарегистрироваться</button>
+            <div class="auth-footer">
+                <span onclick="showPage('login')">Уже есть аккаунт? Войти</span>
+            </div>
         </div>
     </div>
-</section>
-{% endblock %}
+</div>
+
+<!-- ВХОД -->
+<div id="pageLogin" class="page hidden">
+    <div class="auth-form">
+        <div class="auth-card">
+            <h1>Вход</h1>
+            <p class="auth-subtitle">Войдите в свой аккаунт</p>
+            <div id="loginAlert"></div>
+            <div class="form-group">
+                <label for="loginLogin">Логин</label>
+                <input id="loginLogin" class="form-control" placeholder="Логин">
+                <div class="invalid-feedback" id="loginLoginErr"></div>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Пароль</label>
+                <input id="loginPassword" type="password" class="form-control" placeholder="Пароль">
+                <div class="invalid-feedback" id="loginPasswordErr"></div>
+            </div>
+            <button class="btn btn-primary btn-block" onclick="doLogin()">Войти</button>
+            <div class="auth-footer">
+                <span onclick="showPage('register')">Ещё не зарегистрированы? Регистрация</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- КАБИНЕТ -->
+<div id="pageCabinet" class="page hidden">
+    <div class="container profile-page">
+        <div id="cabinetAlert"></div>
+        <div class="profile-header">
+            <div class="profile-info">
+                <h1>Личный кабинет</h1>
+                <p class="welcome-text">Добро пожаловать, <strong id="cabinetUserName"></strong>!</p>
+                <div class="user-details" id="cabinetUserDetails"></div>
+            </div>
+            <button class="btn btn-primary" onclick="showPage('newApp')">+ Новая заявка</button>
+        </div>
+
+        <section class="slider-section">
+            <h2>Наши курсы</h2>
+            <div class="slider">
+                <div class="slides-container" id="cabinetSlider">
+                    <img class="slide-img" src="static/images/i (1).webp" alt="Курс 1" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22400%22%3E%3Crect width=%22800%22 height=%22400%22 fill=%22%23e9ecef%22/%3E%3Ctext x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23666%22 font-size=%2224%22%3EСлайд 1%3C/text%3E%3C/svg%3E'">
+                    <img class="slide-img" src="static/images/i (2).webp" alt="Курс 2" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22400%22%3E%3Crect width=%22800%22 height=%22400%22 fill=%22%23e9ecef%22/%3E%3Ctext x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23666%22 font-size=%2224%22%3EСлайд 2%3C/text%3E%3C/svg%3E'">
+                    <img class="slide-img" src="static/images/i (3).webp" alt="Курс 3" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22400%22%3E%3Crect width=%22800%22 height=%22400%22 fill=%22%23e9ecef%22/%3E%3Ctext x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23666%22 font-size=%2224%22%3EСлайд 3%3C/text%3E%3C/svg%3E'">
+                    <img class="slide-img" src="static/images/diploma.webp" alt="Курс 4" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22400%22%3E%3Crect width=%22800%22 height=%22400%22 fill=%22%23e9ecef%22/%3E%3Ctext x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23666%22 font-size=%2224%22%3EСлайд 4%3C/text%3E%3C/svg%3E'">
+                    <button class="slider-btn slider-prev" onclick="slideChange(-1)">‹</button>
+                    <button class="slider-btn slider-next" onclick="slideChange(1)">›</button>
+                </div>
+                <div class="slider-dots" id="sliderDots"></div>
+            </div>
+        </section>
+
+        <section class="applications-section">
+            <h2>Мои заявки</h2>
+            <div id="cabinetOrders"></div>
+        </section>
+    </div>
+</div>
+
+<!-- НОВАЯ ЗАЯВКА -->
+<div id="pageNewApp" class="page hidden">
+    <div class="container application-form-page">
+        <div class="form-card">
+            <h1>Оформление заявки на курс</h1>
+            <p class="form-subtitle">Заполните форму для записи на обучение</p>
+            <div id="newAppAlert"></div>
+            <div class="form-group">
+                <label for="appCourse">Тип курса</label>
+                <select id="appCourse" class="form-control">
+                    <option value="">Выберите тип курса</option>
+                    <option value="Повышение квалификации">Повышение квалификации</option>
+                    <option value="Курс переподготовки">Курс переподготовки</option>
+                    <option value="Курс по охране труда">Курс по охране труда</option>
+                </select>
+                <div class="invalid-feedback" id="appCourseErr"></div>
+            </div>
+            <div class="form-group">
+                <label for="appDate">Предпочтительная дата старта занятий</label>
+                <input type="date" id="appDate" class="form-control">
+                <div class="invalid-feedback" id="appDateErr"></div>
+            </div>
+            <div class="form-group">
+                <label for="appPay">Способ оплаты</label>
+                <select id="appPay" class="form-control">
+                    <option value="">Выберите способ оплаты</option>
+                    <option value="Предоплата по QR-коду">Предоплата по QR-коду</option>
+                    <option value="Оплата картой МИР">Оплата картой МИР</option>
+                    <option value="Постоплата в офисе организации">Постоплата в офисе организации</option>
+                </select>
+                <div class="invalid-feedback" id="appPayErr"></div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-primary btn-lg" onclick="createOrder()">Отправить заявку</button>
+                <button class="btn btn-outline" onclick="showPage('cabinet')">Отмена</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- АДМИНКА -->
+<div id="pageAdmin" class="page hidden">
+    <div class="container admin-page">
+        <div id="adminAlert"></div>
+        <div class="admin-header">
+            <h1>Панель администратора</h1>
+            <p>Управление заявками пользователей</p>
+        </div>
+
+        <div class="admin-tools">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="filterStatus">Фильтр по статусу:</label>
+                    <select id="filterStatus" class="form-control" onchange="adminFilterChange()">
+                        <option value="">Все статусы</option>
+                        <option value="Новая">Новая</option>
+                        <option value="Идет обучение">Идет обучение</option>
+                        <option value="Обучение завершено">Обучение завершено</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Сортировка:</label>
+                    <div class="sort-buttons">
+                        <button class="btn btn-sm btn-primary" id="sortDateBtn" onclick="setAdminSort('date')">По дате ↓</button>
+                        <button class="btn btn-sm btn-outline" id="sortUserBtn" onclick="setAdminSort('user')">По имени ↑</button>
+                        <button class="btn btn-sm btn-outline" id="sortStatusBtn" onclick="setAdminSort('status')">По статусу ↑</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-stats" id="adminStats"></div>
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Пользователь</th>
+                        <th>Тип курса</th>
+                        <th>Дата старта</th>
+                        <th>Способ оплаты</th>
+                        <th>Статус</th>
+                        <th>Дата создания</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="adminTableBody"></tbody>
+            </table>
+        </div>
+        <div class="pagination" id="adminPagination"></div>
+    </div>
+</div>
+
+<!-- МОДАЛКА ДЛЯ ОТЗЫВА -->
+<div class="modal-overlay" id="reviewModal">
+    <div class="modal-box">
+        <h3>Оставить отзыв</h3>
+        <div class="form-group">
+            <textarea id="reviewText" class="form-control" rows="4" placeholder="Ваш отзыв о курсе..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="submitReview()">Отправить</button>
+        <button class="btn btn-outline" onclick="closeReviewModal()">Отмена</button>
+    </div>
+</div>
+
+<!-- ФУТЕР -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-info">
+                <h3>Учусь.РФ</h3>
+                <p>Образовательный портал для записи на онлайн курсы дистанционного обучения.</p>
+                <p>Повышение квалификации, профессиональная переподготовка, курсы по охране труда.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Курсы</h4>
+                <ul>
+                    <li>Повышение квалификации</li>
+                    <li>Курсы переподготовки</li>
+                    <li>Курсы по охране труда</li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Контакты</h4>
+                <ul>
+                    <li>Email: info@uchis.ru</li>
+                    <li>Телефон: +7 (495) 123-45-67</li>
+                    <li>Москва, ул. Образовательная, 1</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Учусь.РФ. Все права защищены.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+// ========== ДАННЫЕ ==========
+let users = JSON.parse(localStorage.getItem('uchis_users') || '[]');
+let orders = JSON.parse(localStorage.getItem('uchis_orders') || '[]');
+let currentUser = localStorage.getItem('uchis_currentUser');
+let currentUserId = localStorage.getItem('uchis_currentUserId');
+
+// Счётчик ID для заявок
+let orderIdCounter = parseInt(localStorage.getItem('uchis_orderIdCounter') || '0');
+
+// Состояние админки
+let adminSortField = 'date';
+let adminSortDir = 'desc';
+let adminPage = 1;
+const ADMIN_PER_PAGE = 10;
+
+// Слайдер
+let slideIndex = 0;
+let slideTimer = null;
+
+// ID для отзыва
+let reviewTargetOrderId = null;
+
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
+(function init() {
+    // Создаём админа если нет
+    if (!users.find(u => u.login === 'Admin26')) {
+        users.push({
+            id: 'admin',
+            login: 'Admin26',
+            password: 'Demo20',
+            fio: 'Администратор системы',
+            phone: '+7 (495) 123-45-67',
+            email: 'admin@uchis.ru',
+            isAdmin: true
+        });
+        saveUsers();
+    }
+
+    // Если пользователь залогинен, восстанавливаем сессию
+    if (currentUser && currentUserId) {
+        const user = users.find(u => u.id === currentUserId && u.login === currentUser);
+        if (user) {
+            updateNavForAuth(user);
+            showPage('index');
+        } else {
+            clearSession();
+        }
+    }
+
+    // Слайдер
+    initSlider();
+    window.addEventListener('resize', function() {
+        const sl = document.getElementById('cabinetSlider');
+        if (sl && sl.offsetParent !== null) {
+            // слайдер виден
+        }
+    });
+})();
+
+// ========== СОХРАНЕНИЕ ==========
+function saveUsers() {
+    localStorage.setItem('uchis_users', JSON.stringify(users));
+}
+function saveOrders() {
+    localStorage.setItem('uchis_orders', JSON.stringify(orders));
+}
+function saveOrderIdCounter() {
+    localStorage.setItem('uchis_orderIdCounter', orderIdCounter.toString());
+}
+
+// ========== НАВИГАЦИЯ ==========
+function toggleMenu() {
+    document.getElementById('navMenu').classList.toggle('active');
+}
+
+function showPage(page) {
+    // Скрыть все страницы
+    document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+
+    // Показать нужную
+    const target = document.getElementById('page' + page.charAt(0).toUpperCase() + page.slice(1));
+    if (target) target.classList.remove('hidden');
+
+    // Закрыть мобильное меню
+    document.getElementById('navMenu').classList.remove('active');
+
+    // Обновить контент
+    if (page === 'cabinet') loadCabinet();
+    else if (page === 'admin') loadAdmin();
+    else if (page === 'index') updateHeroButtons();
+
+    // Сбросить слайдер при переходе на кабинет
+    if (page === 'cabinet') {
+        setTimeout(initSlider, 100);
+    }
+}
+
+function updateNavForAuth(user) {
+    document.getElementById('navLogin').classList.add('hidden');
+    document.getElementById('navRegister').classList.add('hidden');
+    document.getElementById('navCabinet').classList.remove('hidden');
+    document.getElementById('navLogout').classList.remove('hidden');
+    if (user.isAdmin) {
+        document.getElementById('navAdmin').classList.remove('hidden');
+    } else {
+        document.getElementById('navAdmin').classList.add('hidden');
+    }
+}
+
+function updateNavForGuest() {
+    document.getElementById('navLogin').classList.remove('hidden');
+    document.getElementById('navRegister').classList.remove('hidden');
+    document.getElementById('navCabinet').classList.add('hidden');
+    document.getElementById('navAdmin').classList.add('hidden');
+    document.getElementById('navLogout').classList.add('hidden');
+}
+
+function updateHeroButtons() {
+    const container = document.getElementById('heroActions');
+    if (currentUser) {
+        const user = users.find(u => u.id === currentUserId);
+        if (user) {
+            if (user.isAdmin) {
+                container.innerHTML =
+                    '<button class="btn btn-primary btn-lg" onclick="showPage(\'admin\')">Панель администратора</button>' +
+                    '<button class="btn btn-outline btn-lg" onclick="showPage(\'cabinet\')">Личный кабинет</button>';
+            } else {
+                container.innerHTML =
+                    '<button class="btn btn-primary btn-lg" onclick="showPage(\'newApp\')">Подать заявку</button>' +
+                    '<button class="btn btn-outline btn-lg" onclick="showPage(\'cabinet\')">Личный кабинет</button>';
+            }
+            return;
+        }
+    }
+    container.innerHTML =
+        '<button class="btn btn-primary btn-lg" onclick="showPage(\'register\')">Зарегистрироваться</button>' +
+        '<button class="btn btn-outline btn-lg" onclick="showPage(\'login\')">Войти</button>';
+}
+
+function clearSession() {
+    currentUser = null;
+    currentUserId = null;
+    localStorage.removeItem('uchis_currentUser');
+    localStorage.removeItem('uchis_currentUserId');
+    updateNavForGuest();
+}
+
+// ========== РЕГИСТРАЦИЯ ==========
+function register() {
+    const login = document.getElementById('regLogin').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const fio = document.getElementById('regFio').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+
+    // Очистить ошибки
+    document.querySelectorAll('#pageRegister .invalid-feedback').forEach(e => e.textContent = '');
+    document.querySelectorAll('#pageRegister .form-control').forEach(e => e.classList.remove('is-invalid'));
+
+    let hasError = false;
+
+    if (login.length < 6 || !/^[a-zA-Z0-9]+$/.test(login)) {
+        document.getElementById('regLoginErr').textContent = 'Логин: лат. буквы и цифры, от 6 символов';
+        document.getElementById('regLogin').classList.add('is-invalid');
+        hasError = true;
+    }
+    if (users.find(u => u.login === login)) {
+        document.getElementById('regLoginErr').textContent = 'Логин занят';
+        document.getElementById('regLogin').classList.add('is-invalid');
+        hasError = true;
+    }
+    if (password.length < 8) {
+        document.getElementById('regPasswordErr').textContent = 'Пароль от 8 символов';
+        document.getElementById('regPassword').classList.add('is-invalid');
+        hasError = true;
+    }
+    if (fio.length < 3) {
+        document.getElementById('regFioErr').textContent = 'Введите ФИО';
+        document.getElementById('regFio').classList.add('is-invalid');
+        hasError = true;
+    }
+    if (!phone) {
+        document.getElementById('regPhoneErr').textContent = 'Введите телефон';
+        document.getElementById('regPhone').classList.add('is-invalid');
+        hasError = true;
+    }
+    if (!email || !email.includes('@')) {
+        document.getElementById('regEmailErr').textContent = 'Введите корректный email';
+        document.getElementById('regEmail').classList.add('is-invalid');
+        hasError = true;
+    }
+
+    if (hasError) return;
+
+    const userId = 'u' + Date.now();
+    users.push({
+        id: userId,
+        login: login,
+        password: password,
+        fio: fio,
+        phone: phone,
+        email: email,
+        isAdmin: false
+    });
+    saveUsers();
+
+    showAlert('registerAlert', 'Регистрация прошла успешно! Теперь вы можете войти.', 'success');
+    setTimeout(() => showPage('login'), 1500);
+}
+
+// ========== ВХОД ==========
+function doLogin() {
+    const login = document.getElementById('loginLogin').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    document.getElementById('loginLoginErr').textContent = '';
+    document.getElementById('loginPasswordErr').textContent = '';
+    document.getElementById('loginAlert').innerHTML = '';
+
+    // Проверка админа
+    if (login === 'Admin26' && password === 'Demo20') {
+        currentUser = 'Admin26';
+        currentUserId = 'admin';
+        localStorage.setItem('uchis_currentUser', currentUser);
+        localStorage.setItem('uchis_currentUserId', currentUserId);
+        const admin = users.find(u => u.id === 'admin');
+        updateNavForAuth(admin);
+        showPage('admin');
+        return;
+    }
+
+    const user = users.find(u => u.login === login);
+    if (!user) {
+        document.getElementById('loginLoginErr').textContent = 'Пользователь не найден';
+        return;
+    }
+    if (user.password !== password) {
+        document.getElementById('loginPasswordErr').textContent = 'Неверный пароль';
+        return;
+    }
+
+    currentUser = user.login;
+    currentUserId = user.id;
+    localStorage.setItem('uchis_currentUser', currentUser);
+    localStorage.setItem('uchis_currentUserId', currentUserId);
+    updateNavForAuth(user);
+    showAlert('loginAlert', 'Вы успешно вошли в систему!', 'success');
+    setTimeout(() => showPage('index'), 500);
+}
+
+// ========== ВЫХОД ==========
+function logout() {
+    clearSession();
+    showPage('index');
+}
+
+// ========== КАБИНЕТ ==========
+function loadCabinet() {
+    const user = users.find(u => u.id === currentUserId);
+    if (!user) {
+        showPage('login');
+        return;
+    }
+
+    document.getElementById('cabinetUserName').textContent = user.fio;
+    document.getElementById('cabinetUserDetails').innerHTML =
+        '<span><strong>Логин:</strong> ' + user.login + '</span>' +
+        '<span><strong>Email:</strong> ' + user.email + '</span>' +
+        '<span><strong>Телефон:</strong> ' + user.phone + '</span>';
+
+    // Заявки
+    const userOrders = orders.filter(o => o.userId === currentUserId);
+    const container = document.getElementById('cabinetOrders');
+
+    if (userOrders.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>У вас пока нет заявок.</p><button class="btn btn-primary" onclick="showPage(\'newApp\')">Создать первую заявку</button></div>';
+        return;
+    }
+
+    let html = '<div class="applications-table-wrapper"><table class="applications-table"><thead><tr><th>№</th><th>Тип курса</th><th>Дата старта</th><th>Способ оплаты</th><th>Статус</th><th>Действия</th></tr></thead><tbody>';
+    for (const o of userOrders) {
+        html += '<tr>';
+        html += '<td>' + o.id + '</td>';
+        html += '<td>' + o.course + '</td>';
+        html += '<td>' + o.date + '</td>';
+        html += '<td>' + o.pay + '</td>';
+        html += '<td><span class="status status-' + o.status.replace(/ /g, '') + '">' + o.status + '</span></td>';
+        html += '<td>';
+        if (o.status !== 'Новая') {
+            if (o.review) {
+                html += '<div class="review-text"><small><em>Ваш отзыв: ' + o.review.slice(0, 50) + (o.review.length > 50 ? '...' : '') + '</em></small></div>';
+            } else {
+                html += '<button class="btn btn-sm btn-outline" onclick="openReviewModal(' + o.id + ')">Оставить отзыв</button>';
+            }
+        } else {
+            html += '<span class="text-muted">Ожидает обработки</span>';
+        }
+        html += '</td></tr>';
+    }
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+// ========== НОВАЯ ЗАЯВКА ==========
+function createOrder() {
+    const course = document.getElementById('appCourse').value;
+    const date = document.getElementById('appDate').value;
+    const pay = document.getElementById('appPay').value;
+
+    document.querySelectorAll('#pageNewApp .invalid-feedback').forEach(e => e.textContent = '');
+    document.querySelectorAll('#pageNewApp .form-control').forEach(e => e.classList.remove('is-invalid'));
+
+    let hasError = false;
+    if (!course) {
+        document.getElementById('appCourseErr').textContent = 'Выберите тип курса';
+        document.getElementById('appCourse').classList.add('is-invalid');
+        hasError = true;
+    }
+    if (!date) {
+        document.getElementById('appDateErr').textContent = 'Выберите дату';
+        document.getElementById('appDate').classList.add('is-invalid');
+        hasError = true;
+    }
+    if (!pay) {
+        document.getElementById('appPayErr').textContent = 'Выберите способ оплаты';
+        document.getElementById('appPay').classList.add('is-invalid');
+        hasError = true;
+    }
+    if (hasError) return;
+
+    orderIdCounter++;
+    saveOrderIdCounter();
+
+    // Форматируем дату из ГГГГ-ММ-ДД в ДД.ММ.ГГГГ
+    const dateParts = date.split('-');
+    const formattedDate = dateParts[2] + '.' + dateParts[1] + '.' + dateParts[0];
+
+    orders.push({
+        id: orderIdCounter,
+        userId: currentUserId,
+        userName: users.find(u => u.id === currentUserId)?.fio || 'Неизвестно',
+        course: course,
+        date: formattedDate,
+        pay: pay,
+        status: 'Новая',
+        review: '',
+        createdAt: new Date().toISOString()
+    });
+    saveOrders();
+
+    showAlert('newAppAlert', 'Заявка успешно создана и отправлена на согласование!', 'success');
+    setTimeout(() => showPage('cabinet'), 1000);
+}
+
+// ========== ОТЗЫВЫ ==========
+function openReviewModal(orderId) {
+    reviewTargetOrderId = orderId;
+    document.getElementById('reviewText').value = '';
+    document.getElementById('reviewModal').classList.add('active');
+}
+
+function closeReviewModal() {
+    document.getElementById('reviewModal').classList.remove('active');
+    reviewTargetOrderId = null;
+}
+
+function submitReview() {
+    const text = document.getElementById('reviewText').value.trim();
+    if (!text) {
+        alert('Напишите текст отзыва.');
+        return;
+    }
+
+    const order = orders.find(o => o.id === reviewTargetOrderId);
+    if (order) {
+        order.review = text;
+        saveOrders();
+    }
+
+    closeReviewModal();
+    loadCabinet();
+}
+
+// ========== АДМИНКА ==========
+function setAdminSort(field) {
+    if (adminSortField === field) {
+        adminSortDir = adminSortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+        adminSortField = field;
+        adminSortDir = (field === 'user' || field === 'status') ? 'asc' : 'desc';
+    }
+    adminPage = 1;
+    updateSortButtons();
+    loadAdmin();
+}
+
+function updateSortButtons() {
+    const dirArrow = adminSortDir === 'desc' ? '↓' : '↑';
+    const btns = ['sortDateBtn', 'sortUserBtn', 'sortStatusBtn'];
+    const fields = ['date', 'user', 'status'];
+    for (let i = 0; i < btns.length; i++) {
+        const btn = document.getElementById(btns[i]);
+        btn.className = 'btn btn-sm';
+        if (adminSortField === fields[i]) {
+            btn.classList.add('btn-primary');
+            // Названия кнопок
+            const labels = { date: 'По дате', user: 'По имени', status: 'По статусу' };
+            btn.textContent = labels[fields[i]] + ' ' + dirArrow;
+        } else {
+            btn.classList.add('btn-outline');
+            const labels = { date: 'По дате ↓', user: 'По имени ↑', status: 'По статусу ↑' };
+            btn.textContent = labels[fields[i]];
+        }
+    }
+}
+
+function adminFilterChange() {
+    adminPage = 1;
+    loadAdmin();
+}
+
+function loadAdmin() {
+    const container = document.getElementById('adminTableBody');
+    if (!container) return;
+
+    const filterStatus = document.getElementById('filterStatus').value;
+
+    // Фильтрация
+    let filtered = [...orders];
+    if (filterStatus) {
+        filtered = filtered.filter(o => o.status === filterStatus);
+    }
+
+    // Сортировка
+    filtered.sort((a, b) => {
+        let cmp = 0;
+        if (adminSortField === 'date') {
+            cmp = (a.createdAt || '') > (b.createdAt || '') ? 1 : -1;
+        } else if (adminSortField === 'user') {
+            cmp = (a.userName || '').localeCompare(b.userName || '');
+        } else if (adminSortField === 'status') {
+            cmp = (a.status || '').localeCompare(b.status || '');
+        }
+        return adminSortDir === 'desc' ? -cmp : cmp;
+    });
+
+    // Статистика
+    const total = orders.length;
+    const newCount = orders.filter(o => o.status === 'Новая').length;
+    const inProgress = orders.filter(o => o.status === 'Идет обучение').length;
+    const completed = orders.filter(o => o.status === 'Обучение завершено').length;
+
+    document.getElementById('adminStats').innerHTML =
+        '<div class="stat-card"><span class="stat-number">' + total + '</span><span class="stat-label">Всего заявок</span></div>' +
+        '<div class="stat-card stat-new"><span class="stat-number">' + newCount + '</span><span class="stat-label">Новые</span></div>' +
+        '<div class="stat-card stat-inprogress"><span class="stat-number">' + inProgress + '</span><span class="stat-label">В обучении</span></div>' +
+        '<div class="stat-card stat-completed"><span class="stat-number">' + completed + '</span><span class="stat-label">Завершено</span></div>';
+
+    // Пагинация
+    const totalPages = Math.ceil(filtered.length / ADMIN_PER_PAGE) || 1;
+    if (adminPage > totalPages) adminPage = totalPages;
+    if (adminPage < 1) adminPage = 1;
+
+    const start = (adminPage - 1) * ADMIN_PER_PAGE;
+    const end = Math.min(start + ADMIN_PER_PAGE, filtered.length);
+    const pageItems = filtered.slice(start, end);
+
+    // Таблица
+    if (pageItems.length === 0) {
+        container.innerHTML = '<tr><td colspan="8" class="empty-state">Нет заявок для отображения</td></tr>';
+        document.getElementById('adminPagination').innerHTML = '';
+        return;
+    }
+
+    container.innerHTML = '';
+    for (const o of pageItems) {
+        const tr = document.createElement('tr');
+        tr.className = 'fade-in';
+        const userName = users.find(u => u.id === o.userId)?.fio || o.userName || 'Неизвестно';
+        const createdDate = o.createdAt ? new Date(o.createdAt).toLocaleDateString('ru-RU') + ' ' + new Date(o.createdAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) : '-';
+        tr.innerHTML =
+            '<td>#' + o.id + '</td>' +
+            '<td>' + userName + '</td>' +
+            '<td>' + o.course + '</td>' +
+            '<td>' + o.date + '</td>' +
+            '<td>' + o.pay + '</td>' +
+            '<td><span class="status status-' + o.status.replace(/ /g, '') + '">' + o.status + '</span></td>' +
+            '<td>' + createdDate + '</td>' +
+            '<td><select class="form-control form-control-sm status-form" onchange="updateOrderStatus(' + o.id + ', this.value)">' +
+                '<option value="Новая"' + (o.status === 'Новая' ? ' selected' : '') + '>Новая</option>' +
+                '<option value="Идет обучение"' + (o.status === 'Идет обучение' ? ' selected' : '') + '>Идет обучение</option>' +
+                '<option value="Обучение завершено"' + (o.status === 'Обучение завершено' ? ' selected' : '') + '>Обучение завершено</option>' +
+            '</select></td>';
+        container.appendChild(tr);
+    }
+
+    // Пагинация
+    let pagHtml = '';
+    if (adminPage > 1) {
+        pagHtml += '<button class="btn btn-outline btn-sm" onclick="adminPage--; loadAdmin();">« Назад</button>';
+    }
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === adminPage) {
+            pagHtml += '<button class="btn btn-sm btn-primary">' + i + '</button>';
+        } else if (i <= 3 || i > totalPages - 3 || Math.abs(i - adminPage) <= 2) {
+            pagHtml += '<button class="btn btn-sm btn-outline" onclick="adminPage=' + i + '; loadAdmin();">' + i + '</button>';
+        } else if (i === 4 && adminPage > 5) {
+            pagHtml += '<span class="pagination-ellipsis">...</span>';
+        } else if (i === totalPages - 3 && adminPage < totalPages - 4) {
+            pagHtml += '<span class="pagination-ellipsis">...</span>';
+        }
+    }
+    if (adminPage < totalPages) {
+        pagHtml += '<button class="btn btn-outline btn-sm" onclick="adminPage++; loadAdmin();">Вперед »</button>';
+    }
+    document.getElementById('adminPagination').innerHTML = pagHtml;
+}
+
+function updateOrderStatus(orderId, newStatus) {
+    const order = orders.find(o => o.id === orderId);
+    if (order) {
+        order.status = newStatus;
+        saveOrders();
+        loadAdmin();
+    }
+}
+
+// ========== СЛАЙДЕР ==========
+function initSlider() {
+    const slides = document.querySelectorAll('#cabinetSlider .slide-img');
+    const dotsContainer = document.getElementById('sliderDots');
+    if (slides.length === 0) return;
+
+    // Убираем active со всех
+    slides.forEach(s => s.classList.remove('active'));
+    slides[0].classList.add('active');
+
+    // Создаём точки
+    dotsContainer.innerHTML = '';
+    for (let i = 0; i < slides.length; i++) {
+        const dot = document.createElement('span');
+        dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
+        dot.onclick = function() { goToSlide(i); };
+        dotsContainer.appendChild(dot);
+    }
+
+    slideIndex = 0;
+
+    if (slideTimer) clearInterval(slideTimer);
+    slideTimer = setInterval(function() {
+        slideChange(1);
+    }, 3000);
+}
+
+function slideChange(dir) {
+    const slides = document.querySelectorAll('#cabinetSlider .slide-img');
+    const dots = document.querySelectorAll('#sliderDots .slider-dot');
+    if (slides.length === 0) return;
+
+    slides.forEach(s => s.classList.remove('active'));
+    dots.forEach(d => d.classList.remove('active'));
+
+    slideIndex = (slideIndex + dir + slides.length) % slides.length;
+
+    slides[slideIndex].classList.add('active');
+    if (dots[slideIndex]) dots[slideIndex].classList.add('active');
+
+    // Сброс таймера
+    if (slideTimer) clearInterval(slideTimer);
+    slideTimer = setInterval(function() {
+        slideChange(1);
+    }, 3000);
+}
+
+function goToSlide(index) {
+    const slides = document.querySelectorAll('#cabinetSlider .slide-img');
+    const dots = document.querySelectorAll('#sliderDots .slider-dot');
+    if (slides.length === 0) return;
+
+    slides.forEach(s => s.classList.remove('active'));
+    dots.forEach(d => d.classList.remove('active'));
+
+    slideIndex = index;
+    slides[slideIndex].classList.add('active');
+    dots[slideIndex].classList.add('active');
+
+    if (slideTimer) clearInterval(slideTimer);
+    slideTimer = setInterval(function() {
+        slideChange(1);
+    }, 3000);
+}
+
+// ========== АЛЕРТЫ ==========
+function showAlert(containerId, message, type) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '<div class="alert alert-' + type + '">' + message + '<button class="btn-close" onclick="this.parentElement.remove()">×</button></div>';
+    setTimeout(() => {
+        if (container.firstChild) {
+            container.firstChild.style.opacity = '0';
+            setTimeout(() => { container.innerHTML = ''; }, 300);
+        }
+    }, 5000);
+}
+</script>
+
+</body>
+</html>
